@@ -26,3 +26,42 @@ E. Shamsara, F. König, N. Pfeifer, "An Informed Deep Learning Model of the Omic
   
 
 
+
+---
+
+## Repository structure
+
+```
+InformedDL-Omicron.ipynb   Main notebook: model, sliding-window training, parameter estimation
+data/                      Daily compartment data per country (DEU, FRA, ITA)
+results/                   Outputs: checkpoints, reconstructed compartments, parameter tables
+                           + example_observed_compartments.png (no-training preview)
+requirements.txt           Python dependencies
+```
+
+## Data
+
+`data/{DEU,FRA,ITA}_Omicron_check.csv` — daily values over the Omicron period (Jan 2022 – Apr 2023,
+477 days each). Columns: `Country, Variant, date, I, D, R, V, H, ICU, Population, S, Stringency`,
+where S/I/H/R/D/V are the SIHRDV compartments.
+
+## How to run
+
+```bash
+pip install -r requirements.txt
+jupyter lab            # open InformedDL-Omicron.ipynb
+```
+
+- **Quick look (seconds, CPU):** run Sections 1–3 then the **Example** cell — it plots the observed
+  Omicron waves directly from the data, no training.
+- **Full training (heavy, GPU recommended):** Sections 1–6 train a DINN on every 90-day sliding
+  window (387 windows per country × tens of thousands of epochs). For a fast functional test, set
+  `WINDOW_START, WINDOW_END = 0, 2` and `EPOCHS = 200` in Section 5.
+
+## Model notes
+
+- A **Disease-Informed Neural Network** maps time `t` to the six SIHRDV compartments and to seven
+  epidemiological parameters; the SIHRDV ODE residuals are enforced as a physics loss alongside the
+  data-fit (MSE) loss, balanced by an adaptive weight.
+- The network uses **tanh** activations and **no batch normalisation** — both required so that the
+  autograd time-derivatives used in the physics loss are well-defined per sample.
