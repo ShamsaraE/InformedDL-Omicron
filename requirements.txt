@@ -1,0 +1,5 @@
+# Verified with Python 3.11
+numpy
+pandas
+matplotlib
+torch>=2.0          # PyTorch; a CUDA build is strongly recommended for full training
